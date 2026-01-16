@@ -30,7 +30,7 @@ export class Auth2Controller {
     const { refreshToken, ...response } = await this.auth2Service.login(dto);
     this.auth2Service.addRefreshTokenToResponse(res, refreshToken);
 
-    return response;
+    return { refreshToken: refreshToken };
   }
 
   @UsePipes(new ValidationPipe())
@@ -59,10 +59,10 @@ export class Auth2Controller {
       this.auth2Service.removeRefreshTokenFromResponse(res);
       throw new UnauthorizedException('Refresh token не прошёл');
     }
-    const { refreshToken, ...response } = await this.auth2Service.getNewTokens(
+    const response = await this.auth2Service.getNewTokens(
       refreshTokenFromCookies,
     );
-    return response;
+    return { accessToken: response.accessToken };
   }
 
   @HttpCode(HttpStatus.OK)

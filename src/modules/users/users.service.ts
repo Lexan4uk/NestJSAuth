@@ -44,11 +44,29 @@ export class UsersService {
       username: createData.username,
       password: await hash(createData.password),
     };
-    const newUser = this.prisma.user.create({ data: user });
+    const newUser = this.prisma.user.create({
+      data: user,
+      select: {
+        id: true,
+        username: true,
+      },
+    });
     if (!newUser)
       throw new InternalServerErrorException(
         'Ошибка сервера при создании пользователя',
       );
     return newUser;
+  }
+  async getProfile(id: string) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id,
+      },
+      select: {
+        username: true,
+      },
+    });
+    if (!user) throw new NotFoundException('Пользователь с таким id не наиден');
+    return user;
   }
 }
